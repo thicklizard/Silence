@@ -221,12 +221,13 @@ static int do_fsync(unsigned int fd, int datasync)
 {
 	struct file *file;
 	int ret = -EBADF;
+	int fput_needed;
 #ifdef CONFIG_ASYNC_FSYNC
 	struct fsync_work *fwork;
 	
 #endif
 
-	file = fget(fd);
+	file = fget_light(fd, &fput_needed);
 	if (file) {
 		ktime_t fsync_t, fsync_diff;
 		char pathname[256], *path;
@@ -242,6 +243,23 @@ static int do_fsync(unsigned int fd, int datasync)
 
 			if (IS_ERR(path))
 				goto no_async;
+
+			mutex_lock(&afsync_lock);
+			list_for_each_entry_safe(fwork, tmp, &afsync_list, list) {
+				if (!strcmp(fwork->pathname, path)) {
+					if (list_empty(&fwork->work.entry)) {
+						pr_debug("fsync(%s): work(%s) not in workqueue\n",
+								current->comm, path);
+						list_del_init(&fwork->list);
+						break;
+					}
+					
+					mutex_unlock(&afsync_lock);
+					fput_light(file, fput_needed);
+					return 0;
+				}
+			}
+			mutex_unlock(&afsync_lock);
 
 			fwork = kmalloc(sizeof(*fwork), GFP_KERNEL);
 			if (fwork) {
