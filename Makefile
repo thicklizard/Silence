@@ -374,12 +374,13 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security \
+		   -fno-delete-null-pointer-checks
                    -Wno-maybe-uninitialized -Wno-uninitialized \
 		   -fno-delete-null-pointer-checks \
                    -Wno-unused-variable -mno-unaligned-access \
 		   -mtune=cortex-a15 -mfpu=neon \
 		   -fpredictive-commoning -fgcse-after-reload -ftree-vectorize \
-		   -fipa-cp-clone -fsingle-precision-constant -pipe \
+		   -fsingle-precision-constant -pipe \
 		   -funswitch-loops -floop-interchange \
 		   -floop-strip-mine -floop-block
 KBUILD_AFLAGS_KERNEL := -O3
@@ -387,6 +388,7 @@ KBUILD_CFLAGS_KERNEL := -O3 -fgcse-sm -fsched-spec-load -ffast-math -fsingle-pre
 KBUILD_AFLAGS   := -D__ASSEMBLY__
 KBUILD_AFLAGS_MODULE  := -DMODULE
 KBUILD_CFLAGS_MODULE  := -DMODULE -O3 -fgcse-sm -fsched-spec-load -ffast-math -fsingle-precision-constant -mtune=cortex-a15 -mfpu=neon -ftree-vectorize -funroll-loops -fmodulo-sched -fmodulo-sched-allow-regmoves
+
 KBUILD_LDFLAGS_MODULE := -T $(srctree)/scripts/module-common.lds
 
 # Read KERNELRELEASE from include/config/kernel.release (if it exists)
