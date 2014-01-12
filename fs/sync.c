@@ -235,13 +235,12 @@ static int do_fsync(unsigned int fd, int datasync)
 {
 	struct file *file;
 	int ret = -EBADF;
-	int fput_needed;
 #ifdef CONFIG_ASYNC_FSYNC
 	struct fsync_work *fwork;
 	
 #endif
 
-	file = fget_light(fd, &fput_needed);
+	file = fget(fd);
 	if (file) {
 		ktime_t fsync_t, fsync_diff;
 		char pathname[256], *path;
@@ -263,7 +262,7 @@ static int do_fsync(unsigned int fd, int datasync)
 				strncpy(fwork->pathname, path, sizeof(fwork->pathname) - 1);
 				INIT_WORK(&fwork->work, do_afsync_work);
 				queue_work(fsync_workqueue, &fwork->work);
-				fput_light(file, fput_needed);
+				fput(file);
 				return 0;
 			}
 		}
