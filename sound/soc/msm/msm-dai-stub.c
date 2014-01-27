@@ -38,7 +38,7 @@ static struct snd_soc_dai_driver msm_dai_stub_dai = {
 		.channels_min = 1,
 		.channels_max = 2,
 		.rate_min = 8000,
-		.rate_max = 48000,
+		.rate_max = 96000,
 	},
 	.capture = {
 		.rates = SNDRV_PCM_RATE_48000 | SNDRV_PCM_RATE_8000 |
@@ -47,7 +47,7 @@ static struct snd_soc_dai_driver msm_dai_stub_dai = {
 		.channels_min = 1,
 		.channels_max = 2,
 		.rate_min = 8000,
-		.rate_max = 48000,
+		.rate_max = 96000,
 	},
 	.ops = &msm_dai_stub_ops,
 };
