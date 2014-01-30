@@ -210,6 +210,8 @@ static int msm_cpufreq_target(struct cpufreq_policy *policy,
 	}
 
 	table = cpufreq_frequency_get_table(policy->cpu);
+	if (table == NULL)
+		return -ENODEV;
 	if (cpufreq_frequency_table_target(policy, table, target_freq, relation,
 			&index)) {
 		pr_err("cpufreq: invalid target_freq: %d\n", target_freq);
@@ -362,10 +364,9 @@ static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 
 #endif
 
-#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
 	policy->user_policy.min = policy->min;
 	policy->user_policy.max = policy->max;
-#endif
+
 
 #ifdef CONFIG_ARCH_APQ8064
 	if( board_mfg_mode() == 5) {
@@ -385,14 +386,15 @@ static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 	}
 
 	if (cur_freq != table[index].frequency) {
-		int ret = 0;
-		ret = acpuclk_set_rate(policy->cpu, table[index].frequency,
-				SETRATE_CPUFREQ);
+		int newfreq, ret = 0;
+			if (table[index].frequency > 1728000) newfreq = 1728000;
+				else newfreq = table[index].frequency;
+			ret = acpuclk_set_rate(policy->cpu, newfreq, SETRATE_CPUFREQ);
 		if (ret)
 			return ret;
 		pr_info("cpufreq: cpu%d init at %d switching to %d\n",
-				policy->cpu, cur_freq, table[index].frequency);
-		cur_freq = table[index].frequency;
+				policy->cpu, cur_freq, newfreq);
+		cur_freq = newfreq;
 	}
 
 	policy->cur = cur_freq;
@@ -404,9 +406,6 @@ static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 	INIT_WORK(&cpu_work->work, set_cpu_work);
 	init_completion(&cpu_work->complete);
 #endif
-
-	policy->user_policy.min = policy->min;
-	policy->user_policy.max = policy->max;
 
 	return 0;
 }
