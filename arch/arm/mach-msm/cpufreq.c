@@ -364,9 +364,10 @@ static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 
 #endif
 
+#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
 	policy->user_policy.min = policy->min;
 	policy->user_policy.max = policy->max;
-
+#endif
 
 #ifdef CONFIG_ARCH_APQ8064
 	if( board_mfg_mode() == 5) {
@@ -406,6 +407,9 @@ static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 	INIT_WORK(&cpu_work->work, set_cpu_work);
 	init_completion(&cpu_work->complete);
 #endif
+
+	policy->user_policy.min = policy->min;
+	policy->user_policy.max = policy->max;
 
 	return 0;
 }
